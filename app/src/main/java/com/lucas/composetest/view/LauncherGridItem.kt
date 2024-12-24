@@ -14,9 +14,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -46,6 +50,7 @@ fun LauncherGridItem(
     onClick: (IntOffset) -> Unit
 ) {
     val coordinates = remember { Ref<IntOffset>() }
+    var iconVisible by remember { mutableStateOf(true) }
     val xPosDifference = 425
     val yPosDifference = 1100
 
@@ -53,13 +58,15 @@ fun LauncherGridItem(
         modifier = Modifier
             .width(48.dp)
             .clickable {
+                iconVisible = false
                 onClick(coordinates.value ?: IntOffset.Zero)
             }
             .onGloballyPositioned { layoutCoordinates ->
                 val position = layoutCoordinates.positionInWindow()
-                    coordinates.value = IntOffset(position.x.toInt() - xPosDifference, position.y.toInt() - yPosDifference)
-                Log.e("posic x", position.x.toString())
-                Log.e("posic y", position.y.toString())
+                coordinates.value = IntOffset(
+                    position.x.toInt() - xPosDifference,
+                    position.y.toInt() - yPosDifference
+                )
             },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Bottom)
@@ -71,7 +78,8 @@ fun LauncherGridItem(
                 .shadow(5.dp, shape = RoundedCornerShape(8.dp))
                 .clip(RoundedCornerShape(8.dp))
                 .background(Color.White)
-                .padding(12.dp),
+                .padding(12.dp)
+                .alpha(if (iconVisible) 1f else 0f),
             imageVector = ImageVector.vectorResource(id = item.icon),
             contentDescription = item.title,
             tint = Color.Black

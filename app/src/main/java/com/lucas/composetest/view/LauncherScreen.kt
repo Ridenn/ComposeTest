@@ -179,18 +179,14 @@ fun ExpandedLauncherItem(
     val backgroundOffset by animateDpAsState(
         targetValue = if (isLaunching) 0.dp else 800.dp, // De fora da tela até o topo
         animationSpec = tween(
-            durationMillis = 600, // Duração da animação
+            durationMillis = 500, // Duração da animação
             easing = LinearOutSlowInEasing // Suaviza o movimento
         )
     )
 
     LauncherComplete()
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Transparent) // Garante que não haja fundo inicial indesejado
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
         // Fundo animado subindo da parte inferior
         Box(
             modifier = Modifier
@@ -208,7 +204,7 @@ fun ExpandedLauncherItem(
             Box(
                 modifier = Modifier
                     .offset { animatedOffset } // Controla o movimento do ícone
-                    .size(120.dp)
+                    .size(100.dp)
                     .clip(CircleShape),
                 contentAlignment = Alignment.Center
             ) {
