@@ -1,5 +1,6 @@
 package com.lucas.composetest.view
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,15 +14,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.node.Ref
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 
 @Preview
@@ -36,12 +43,24 @@ fun LauncherGridItemPreview() {
 @Composable
 fun LauncherGridItem(
     item: LauncherItemType,
-    onClick: () -> Unit
+    onClick: (IntOffset) -> Unit
 ) {
+    val coordinates = remember { Ref<IntOffset>() }
+    val xPosDifference = 425
+    val yPosDifference = 1100
+
     Column(
         modifier = Modifier
             .width(48.dp)
-            .clickable(onClick = onClick),
+            .clickable {
+                onClick(coordinates.value ?: IntOffset.Zero)
+            }
+            .onGloballyPositioned { layoutCoordinates ->
+                val position = layoutCoordinates.positionInWindow()
+                    coordinates.value = IntOffset(position.x.toInt() - xPosDifference, position.y.toInt() - yPosDifference)
+                Log.e("posic x", position.x.toString())
+                Log.e("posic y", position.y.toString())
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Bottom)
     ) {

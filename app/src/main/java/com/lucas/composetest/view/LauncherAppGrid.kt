@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import com.lucas.composetest.R
@@ -45,10 +46,12 @@ fun LauncherAppGridPreview() {
 }
 
 @Composable
-fun LauncherAppGrid(items: List<LauncherItemType>) {
+fun LauncherAppGrid(
+    items: List<LauncherItemType>,
+    onItemClick: (LauncherItemType, IntOffset) -> Unit = { _, _ -> }
+) {
     val pageCount = (items.size + 11) / 12
     val pagerState = rememberPagerState(pageCount = { pageCount })
-    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
     BackHandler(enabled = pagerState.currentPage != 0) {
@@ -81,16 +84,8 @@ fun LauncherAppGrid(items: List<LauncherItemType>) {
                 items(pageItems) { item ->
                     LauncherGridItem(
                         item = item,
-                        onClick = {
-                            try {
-                                val intent = Intent().apply {
-                                    action = Intent.ACTION_VIEW
-                                    setPackage(item.packageIntent)
-                                }
-                                startActivity(context, intent, null)
-                            } catch (e: Exception) {
-                                Toast.makeText(context, "${item.title} não está instalado.", Toast.LENGTH_SHORT).show()
-                            }
+                        onClick = { position ->
+                            onItemClick(item, position)
                         }
                     )
                 }
