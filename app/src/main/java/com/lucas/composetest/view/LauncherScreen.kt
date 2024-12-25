@@ -65,41 +65,51 @@ fun LauncherScreen() {
             }
         )
     } else {
-        val context = LocalContext.current
-
-        val colorStops = arrayOf(
-            0.0f to Color(0xFFFFE600),
-            0.23f to Color(0xFFFFE600),
-            0.33f to Color(0xFFF3F3F3)
-        )
-
-        Column(
-            modifier = Modifier
-                .background(brush = Brush.verticalGradient(colorStops = colorStops))
-                .padding(horizontal = 20.dp)
-                .padding(top = 60.dp)
-                .fillMaxWidth()
-                .fillMaxHeight()
-        ) {
-            HeaderComponent()
-            Spacer(modifier = Modifier.height(24.dp))
-            PaymentCard(
-                onClickPayment = {
-                    context.packageManager.getLaunchIntentForPackage(
-                        "com.google.android.apps.wallet"
-                    )?.let { intent ->
-                        context.startActivity(intent)
-                    }
-                },
-            )
-            LauncherAppGrid(
+        LauncherComplete()
+        LauncherAppGrid(
                 items = LauncherItemType.entries,
                 onItemClick = { item, position ->
                     itemPosition = position
                     expandedItem = item
                 }
             )
-        }
+
+
+//        val context = LocalContext.current
+//
+//        val colorStops = arrayOf(
+//            0.0f to Color(0xFFFFE600),
+//            0.23f to Color(0xFFFFE600),
+//            0.33f to Color(0xFFF3F3F3)
+//        )
+//
+//        Column(
+//            modifier = Modifier
+//                .background(brush = Brush.verticalGradient(colorStops = colorStops))
+//                .padding(horizontal = 20.dp)
+//                .padding(top = 60.dp)
+//                .fillMaxWidth()
+//                .fillMaxHeight()
+//        ) {
+//            HeaderComponent()
+//            Spacer(modifier = Modifier.height(24.dp))
+//            PaymentCard(
+//                onClickPayment = {
+//                    context.packageManager.getLaunchIntentForPackage(
+//                        "com.google.android.apps.wallet"
+//                    )?.let { intent ->
+//                        context.startActivity(intent)
+//                    }
+//                },
+//            )
+//            LauncherAppGrid(
+//                items = LauncherItemType.entries,
+//                onItemClick = { item, position ->
+//                    itemPosition = position
+//                    expandedItem = item
+//                }
+//            )
+//        }
     }
 }
 
@@ -132,9 +142,9 @@ fun LauncherComplete() {
                 }
             },
         )
-        LauncherAppGrid(
-            items = LauncherItemType.entries
-        )
+//        LauncherAppGrid(
+//            items = LauncherItemType.entries
+//        )
     }
 }
 
@@ -155,32 +165,27 @@ fun ExpandedLauncherItem(
 
     LaunchedEffect(item) {
         isLaunching = true
-
-        // Aguarda o tempo da animação inicial (mantém a tela de loading visível)
         delay(1000)
 
         try {
-            // Chama o Intent após o tempo de delay
             val intent = Intent().apply {
                 action = Intent.ACTION_VIEW
                 setPackage(item.packageIntent)
             }
-            startActivity(context, intent, null)
+            context.startActivity(intent)
         } catch (e: Exception) {
             Toast.makeText(context, "${item.title} não está instalado.", Toast.LENGTH_SHORT).show()
         }
-
-        // Mantém a tela de loading visível após o Intent ser lançado
         delay(500)
-        onFinish() // Remove a tela de loading
+        onFinish()
     }
 
     // Fundo branco animado que sobe da parte inferior
     val backgroundOffset by animateDpAsState(
-        targetValue = if (isLaunching) 0.dp else 800.dp, // De fora da tela até o topo
+        targetValue = if (isLaunching) 0.dp else 800.dp,
         animationSpec = tween(
-            durationMillis = 500, // Duração da animação
-            easing = LinearOutSlowInEasing // Suaviza o movimento
+            durationMillis = 500,
+            easing = LinearOutSlowInEasing
         )
     )
 
