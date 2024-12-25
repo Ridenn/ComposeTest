@@ -2,9 +2,7 @@ package com.lucas.composetest.view
 
 import android.content.Intent
 import android.widget.Toast
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.EaseInOutCirc
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateIntOffset
 import androidx.compose.animation.core.tween
@@ -21,7 +19,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -41,7 +38,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
 import kotlinx.coroutines.delay
 
 @Preview(showBackground = true)
@@ -65,7 +61,7 @@ fun LauncherScreen() {
             }
         )
     } else {
-        LauncherComplete()
+        LauncherTop()
         LauncherAppGrid(
                 items = LauncherItemType.entries,
                 onItemClick = { item, position ->
@@ -73,48 +69,11 @@ fun LauncherScreen() {
                     expandedItem = item
                 }
             )
-
-
-//        val context = LocalContext.current
-//
-//        val colorStops = arrayOf(
-//            0.0f to Color(0xFFFFE600),
-//            0.23f to Color(0xFFFFE600),
-//            0.33f to Color(0xFFF3F3F3)
-//        )
-//
-//        Column(
-//            modifier = Modifier
-//                .background(brush = Brush.verticalGradient(colorStops = colorStops))
-//                .padding(horizontal = 20.dp)
-//                .padding(top = 60.dp)
-//                .fillMaxWidth()
-//                .fillMaxHeight()
-//        ) {
-//            HeaderComponent()
-//            Spacer(modifier = Modifier.height(24.dp))
-//            PaymentCard(
-//                onClickPayment = {
-//                    context.packageManager.getLaunchIntentForPackage(
-//                        "com.google.android.apps.wallet"
-//                    )?.let { intent ->
-//                        context.startActivity(intent)
-//                    }
-//                },
-//            )
-//            LauncherAppGrid(
-//                items = LauncherItemType.entries,
-//                onItemClick = { item, position ->
-//                    itemPosition = position
-//                    expandedItem = item
-//                }
-//            )
-//        }
     }
 }
 
 @Composable
-fun LauncherComplete() {
+fun LauncherTop() {
     val context = LocalContext.current
 
     val colorStops = arrayOf(
@@ -142,9 +101,6 @@ fun LauncherComplete() {
                 }
             },
         )
-//        LauncherAppGrid(
-//            items = LauncherItemType.entries
-//        )
     }
 }
 
@@ -189,7 +145,7 @@ fun ExpandedLauncherItem(
         )
     )
 
-    LauncherComplete()
+    LauncherTop()
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Fundo animado subindo da parte inferior

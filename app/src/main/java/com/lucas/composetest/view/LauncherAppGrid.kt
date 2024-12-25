@@ -1,7 +1,5 @@
 package com.lucas.composetest.view
 
-import android.content.Intent
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
@@ -29,11 +27,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
 import com.lucas.composetest.R
 import kotlinx.coroutines.launch
 
@@ -61,7 +57,7 @@ fun LauncherAppGrid(
     }
 
     Column(
-        modifier = Modifier.padding(horizontal = 20.dp).fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         HorizontalPager(
@@ -79,7 +75,7 @@ fun LauncherAppGrid(
                 contentPadding = PaddingValues(0.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Bottom),
-                modifier = Modifier.fillMaxHeight()
+                modifier = Modifier.fillMaxHeight().padding(horizontal = 20.dp)
             ) {
                 items(pageItems) { item ->
                     LauncherGridItem(
