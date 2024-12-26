@@ -37,9 +37,7 @@ fun PaymentCard(
         color = Color.White,
         shape = RoundedCornerShape(8.dp),
         shadowElevation = 6.dp,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { Log.d("LauncherScreen", "Card clicked") }
+        modifier = Modifier.fillMaxWidth()
     ) {
         PaymentCardComponent(
             onClickPayment = onClickPayment,
@@ -65,10 +63,7 @@ fun PaymentCardComponent(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick = {
-                Log.d("LauncherScreen", "Button clicked") // Debug
-                onClickPayment()
-            },
+            onClick = onClickPayment,
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {

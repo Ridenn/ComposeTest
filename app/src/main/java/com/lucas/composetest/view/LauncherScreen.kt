@@ -1,7 +1,10 @@
 package com.lucas.composetest.view
 
 import android.content.Intent
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateDpAsState
@@ -95,9 +98,11 @@ fun LauncherScreenComponent(
         Spacer(modifier = Modifier.height(24.dp))
         PaymentCard(
             onClickPayment = {
-                context.packageManager.getLaunchIntentForPackage("com.picpay")?.let { intent ->
-                    context.startActivity(intent)
+                val intent = Intent().apply {
+                    action = Intent.ACTION_VIEW
+                    setPackage("com.picpay")
                 }
+                context.startActivity(intent)
             }
         )
         LauncherAppGrid(
@@ -204,3 +209,9 @@ fun ExpandedLauncherItem(
         }
     }
 }
+
+@Composable
+private fun getLauncherToPayment() = rememberLauncherForActivityResult(
+    contract = ActivityResultContracts.StartActivityForResult()
+
+) { }
