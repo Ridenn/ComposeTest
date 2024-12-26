@@ -3,6 +3,7 @@ package com.lucas.composetest.view
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateIntOffset
 import androidx.compose.animation.core.tween
@@ -61,19 +62,19 @@ fun LauncherScreen() {
             }
         )
     } else {
-        LauncherTop()
-        LauncherAppGrid(
-                items = LauncherItemType.entries,
-                onItemClick = { item, position ->
-                    itemPosition = position
-                    expandedItem = item
-                }
-            )
+        LauncherScreenComponent(
+            onItemExpand = { item, position ->
+                expandedItem = item
+                itemPosition = position
+            }
+        )
     }
 }
 
 @Composable
-fun LauncherTop() {
+fun LauncherScreenComponent(
+    onItemExpand: (LauncherItemType, IntOffset) -> Unit = { _, _ -> }
+) {
     val context = LocalContext.current
 
     val colorStops = arrayOf(
@@ -94,12 +95,16 @@ fun LauncherTop() {
         Spacer(modifier = Modifier.height(24.dp))
         PaymentCard(
             onClickPayment = {
-                context.packageManager.getLaunchIntentForPackage(
-                    "com.google.android.apps.wallet"
-                )?.let { intent ->
+                context.packageManager.getLaunchIntentForPackage("com.picpay")?.let { intent ->
                     context.startActivity(intent)
                 }
-            },
+            }
+        )
+        LauncherAppGrid(
+            items = LauncherItemType.entries,
+            onItemClick = { item, position ->
+                onItemExpand(item, position)
+            }
         )
     }
 }
@@ -119,8 +124,14 @@ fun ExpandedLauncherItem(
         transitionSpec = { tween(durationMillis = 600) }
     ) { if (it) IntOffset(0, 0) else startPosition }
 
+    var showProgressIndicator by remember { mutableStateOf(false) }
+
     LaunchedEffect(item) {
         isLaunching = true
+
+        delay(300)
+
+        showProgressIndicator = true
         delay(1000)
 
         try {
@@ -145,7 +156,12 @@ fun ExpandedLauncherItem(
         )
     )
 
-    LauncherTop()
+    val iconSize by transition.animateDp(
+        transitionSpec = { tween(durationMillis = 500) },
+        label = "IconSizeAnimation",
+    ) { spec -> if(spec) 56.dp else 48.dp }
+
+    LauncherScreenComponent()
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Fundo animado subindo da parte inferior
@@ -169,14 +185,16 @@ fun ExpandedLauncherItem(
                     .clip(CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.fillMaxSize(),
-                    color = Color.Blue,
-                    strokeWidth = 8.dp
-                )
+                if (showProgressIndicator){
+                    CircularProgressIndicator(
+                        modifier = Modifier.fillMaxSize(),
+                        color = Color.Blue,
+                        strokeWidth = 6.dp
+                    )
+                }
                 Icon(
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(iconSize)
                         .padding(12.dp),
                     imageVector = ImageVector.vectorResource(id = item.icon),
                     contentDescription = item.title,

@@ -75,7 +75,7 @@ fun LauncherAppGrid(
                 contentPadding = PaddingValues(0.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Bottom),
-                modifier = Modifier.fillMaxHeight().padding(horizontal = 20.dp)
+                modifier = Modifier.fillMaxHeight()
             ) {
                 items(pageItems) { item ->
                     LauncherGridItem(

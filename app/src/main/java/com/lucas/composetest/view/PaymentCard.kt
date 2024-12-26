@@ -1,5 +1,7 @@
 package com.lucas.composetest.view
 
+import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,7 +37,9 @@ fun PaymentCard(
         color = Color.White,
         shape = RoundedCornerShape(8.dp),
         shadowElevation = 6.dp,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { Log.d("LauncherScreen", "Card clicked") }
     ) {
         PaymentCardComponent(
             onClickPayment = onClickPayment,
@@ -61,7 +65,10 @@ fun PaymentCardComponent(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick = onClickPayment,
+            onClick = {
+                Log.d("LauncherScreen", "Button clicked") // Debug
+                onClickPayment()
+            },
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
