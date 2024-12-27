@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateIntOffset
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -36,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
@@ -53,22 +55,18 @@ fun LauncherScreenPreview() {
 @Composable
 fun LauncherScreen() {
     var expandedItem by remember { mutableStateOf<LauncherItemType?>(null) }
-    var itemPosition by remember { mutableStateOf<IntOffset?>(null) }
 
-    if (expandedItem != null && itemPosition != null) {
+    if (expandedItem != null) {
         ExpandedLauncherItem(
             item = expandedItem!!,
-            startPosition = itemPosition!!,
             onFinish = {
                 expandedItem = null
-                itemPosition = null
             }
         )
     } else {
         LauncherScreenComponent(
-            onItemExpand = { item, position ->
+            onItemExpand = { item ->
                 expandedItem = item
-                itemPosition = position
             }
         )
     }
@@ -76,10 +74,8 @@ fun LauncherScreen() {
 
 @Composable
 fun LauncherScreenComponent(
-    onItemExpand: (LauncherItemType, IntOffset) -> Unit = { _, _ -> }
+    onItemExpand: (LauncherItemType) -> Unit = {}
 ) {
-    val context = LocalContext.current
-
     val colorStops = arrayOf(
         0.0f to Color(0xFFFFE600),
         0.23f to Color(0xFFFFE600),
@@ -96,20 +92,10 @@ fun LauncherScreenComponent(
     ) {
         HeaderComponent()
         Spacer(modifier = Modifier.height(24.dp))
-        PaymentCard(
-            onClickPayment = {
-                val intent = Intent().apply {
-                    action = Intent.ACTION_VIEW
-                    setPackage("com.picpay")
-                }
-                context.startActivity(intent)
-            }
-        )
+        PaymentCard()
         LauncherAppGrid(
             items = LauncherItemType.entries,
-            onItemClick = { item, position ->
-                onItemExpand(item, position)
-            }
+            onItemClick = onItemExpand
         )
     }
 }
@@ -117,95 +103,52 @@ fun LauncherScreenComponent(
 @Composable
 fun ExpandedLauncherItem(
     item: LauncherItemType,
-    startPosition: IntOffset,
     onFinish: () -> Unit
 ) {
-    val context = LocalContext.current
     var isLaunching by remember { mutableStateOf(false) }
     val transition = updateTransition(targetState = isLaunching, label = "LaunchTransition")
 
-    val animatedOffset by transition.animateIntOffset(
-        label = "OffsetAnimation",
-        transitionSpec = { tween(durationMillis = 600) }
-    ) { if (it) IntOffset(0, 0) else startPosition }
+    val scale by transition.animateFloat(
+        label = "ScaleAnimation",
+        transitionSpec = { tween(durationMillis = 500, easing = LinearOutSlowInEasing) }
+    ) { if (it) 1f else 0.5f }
 
-    var showProgressIndicator by remember { mutableStateOf(false) }
+    val alpha by transition.animateFloat(
+        label = "AlphaAnimation",
+        transitionSpec = { tween(durationMillis = 500) }
+    ) { if (it) 1f else 0f }
 
     LaunchedEffect(item) {
         isLaunching = true
-
-        delay(300)
-
-        showProgressIndicator = true
-        delay(1000)
-
-        try {
-            val intent = Intent().apply {
-                action = Intent.ACTION_VIEW
-                setPackage(item.packageIntent)
-            }
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            Toast.makeText(context, "${item.title} não está instalado.", Toast.LENGTH_SHORT).show()
-        }
-        delay(500)
+        delay(1500)
         onFinish()
     }
 
-    // Fundo branco animado que sobe da parte inferior
-    val backgroundOffset by animateDpAsState(
-        targetValue = if (isLaunching) 0.dp else 800.dp,
-        animationSpec = tween(
-            durationMillis = 500,
-            easing = LinearOutSlowInEasing
-        )
-    )
-
-    val iconSize by transition.animateDp(
-        transitionSpec = { tween(durationMillis = 500) },
-        label = "IconSizeAnimation",
-    ) { spec -> if(spec) 56.dp else 48.dp }
-
-    LauncherScreenComponent()
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        // Fundo animado subindo da parte inferior
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxSize()
-                .offset { IntOffset(0, backgroundOffset.roundToPx()) }
-                .background(Color.White)
-        )
-
-        // Ícone animado subindo para o centro
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.graphicsLayer(
+                scaleX = scale,
+                scaleY = scale,
+                alpha = alpha
+            )
         ) {
-            Box(
-                modifier = Modifier
-                    .offset { animatedOffset } // Controla o movimento do ícone
-                    .size(100.dp)
-                    .clip(CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                if (showProgressIndicator){
-                    CircularProgressIndicator(
-                        modifier = Modifier.fillMaxSize(),
-                        color = Color.Blue,
-                        strokeWidth = 6.dp
-                    )
-                }
-                Icon(
-                    modifier = Modifier
-                        .size(iconSize)
-                        .padding(12.dp),
-                    imageVector = ImageVector.vectorResource(id = item.icon),
-                    contentDescription = item.title,
-                    tint = Color.Black
-                )
-            }
+            Icon(
+                modifier = Modifier.size(100.dp),
+                imageVector = ImageVector.vectorResource(id = item.icon),
+                contentDescription = item.title,
+                tint = Color.Black
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            CircularProgressIndicator(
+                color = Color.Blue,
+                strokeWidth = 4.dp
+            )
         }
     }
 }

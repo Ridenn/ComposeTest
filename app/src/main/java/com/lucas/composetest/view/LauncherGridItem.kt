@@ -1,13 +1,20 @@
 package com.lucas.composetest.view
 
 import android.util.Log
+import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Preview
 @Composable
@@ -47,27 +55,12 @@ fun LauncherGridItemPreview() {
 @Composable
 fun LauncherGridItem(
     item: LauncherItemType,
-    onClick: (IntOffset) -> Unit
+    onClick: () -> Unit
 ) {
-    val coordinates = remember { Ref<IntOffset>() }
-    var iconVisible by remember { mutableStateOf(true) }
-    val xPosDifference = 425
-    val yPosDifference = 1100
-
     Column(
         modifier = Modifier
             .width(48.dp)
-            .clickable {
-                iconVisible = false
-                onClick(coordinates.value ?: IntOffset.Zero)
-            }
-            .onGloballyPositioned { layoutCoordinates ->
-                val position = layoutCoordinates.positionInWindow()
-                coordinates.value = IntOffset(
-                    position.x.toInt() - xPosDifference,
-                    position.y.toInt() - yPosDifference
-                )
-            },
+            .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Bottom)
     ) {
@@ -78,8 +71,7 @@ fun LauncherGridItem(
                 .shadow(5.dp, shape = RoundedCornerShape(8.dp))
                 .clip(RoundedCornerShape(8.dp))
                 .background(Color.White)
-                .padding(12.dp)
-                .alpha(if (iconVisible) 1f else 0f),
+                .padding(12.dp),
             imageVector = ImageVector.vectorResource(id = item.icon),
             contentDescription = item.title,
             tint = Color.Black

@@ -37,14 +37,15 @@ import kotlinx.coroutines.launch
 @Composable
 fun LauncherAppGridPreview() {
     LauncherAppGrid(
-        items = LauncherItemType.entries
+        items = LauncherItemType.entries,
+        onItemClick = {}
     )
 }
 
 @Composable
 fun LauncherAppGrid(
     items: List<LauncherItemType>,
-    onItemClick: (LauncherItemType, IntOffset) -> Unit = { _, _ -> }
+    onItemClick: (LauncherItemType) -> Unit
 ) {
     val pageCount = (items.size + 11) / 12
     val pagerState = rememberPagerState(pageCount = { pageCount })
@@ -80,40 +81,32 @@ fun LauncherAppGrid(
                 items(pageItems) { item ->
                     LauncherGridItem(
                         item = item,
-                        onClick = { position ->
-                            onItemClick(item, position)
-                        }
+                        onClick = { onItemClick(item) }
                     )
                 }
             }
         }
 
-        AnimatedContent(targetState = items.size > 12) { showIndicator ->
-            if (showIndicator) {
-                Row(
-                    modifier = Modifier.padding(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    repeat(pageCount) { index ->
-                        val color by animateColorAsState(
-                            if (pagerState.currentPage == index) {
-                                Color.Black
-                            } else {
-                                Color.LightGray
-                            }
-                        )
-
-                        Box(
-                            modifier = Modifier
-                                .size(8.dp)
-                                .clip(CircleShape)
-                                .background(color)
-                        )
+        Row(
+            modifier = Modifier.padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.Bottom
+        ) {
+            repeat(pageCount) { index ->
+                val color by animateColorAsState(
+                    if (pagerState.currentPage == index) {
+                        Color.Black
+                    } else {
+                        Color.LightGray
                     }
-                }
-            } else {
-                Spacer(modifier = Modifier.size(16.dp))
+                )
+
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(color)
+                )
             }
         }
     }
